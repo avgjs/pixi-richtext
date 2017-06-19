@@ -1,0 +1,31 @@
+{
+  "name": "pixi-bettertext",
+  "version": "1.0.0",
+  "description": "A Better Text Implement using SDF.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "webpack-dev-server --config webpack.config.example.js --hot --port 8000 --devtool source-map",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "pixi",
+    "pixi.js",
+    "webgl",
+    "sdf"
+  ],
+  "author": "Icemic <bingfeng.web@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "pixi-gl-core": "^1.1.0"
+  },
+  "peerDependencies": {
+    "pixi.js": "^4.5.3"
+  },
+  "devDependencies": {
+    "babel-core": "^6.24.1",
+    "babel-loader": "^7.0.0",
+    "babel-preset-latest": "^6.24.1",
+    "webpack": "^2.4.1",
+    "webpack-dev-server": "^2.4.3"
+  }
+}
