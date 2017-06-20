@@ -334,7 +334,7 @@ export default class SpriteRenderer extends ObjectRenderer
             vertexData = mesh.vertexData;
 
             // TODO this sum does not need to be set each frame..
-            uvs = mesh._texture._uvs.uvsUint32;
+            uvs = mesh.uvs;
 
             const interval = this.vertSize;
 

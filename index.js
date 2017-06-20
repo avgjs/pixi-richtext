@@ -1,7 +1,7 @@
 const PIXI = require('pixi.js');
 import './BetterTextRenderer';
 import TinySDF from './lib/SDF';
-import { getSDFData } from './lib/SDFCache';
+import { getSDFTexture, getTextData } from './lib/SDFCache';
 
 PIXI.settings.RENDER_OPTIONS.antialias = true;
 var app = new PIXI.Application({
@@ -34,15 +34,13 @@ class BetterText extends PIXI.Sprite {
 
     this.uStroke = 0.50;    //0.50
     this.uFill = 0.76;      //0.73
-    this.uGamma = 2 * 1.4142 / (this.style.fontSize * 1.3);
+    this.uGamma = 2 * 1.4142 / (this.style.fontSize * 1.5);
     this.uStrokeColor = [1.0, 1.0, 1.0];
     this.uFillColor = [.0, 0, 0];
 
-    this.canvas = document.createElement('canvas');
-    this.canvas.width = this.canvas.height = 800;
-    this.context = this.canvas.getContext('2d');
-    this.text = text;
-    this.generateTexture();
+    this._text = text;
+    // this.generateTexture();
+    this.texture = new PIXI.Texture(getSDFTexture());
 
     this.characterData = [];
     this.needUpdateCharacter = true;
@@ -57,40 +55,14 @@ class BetterText extends PIXI.Sprite {
     this.pluginName = 'bettertext';
 
   }
-  generateTexture() {
-    const text = this.text;
-    const canvas = this.canvas;
-    const context = this.context;
-
-    context.clearRect(0, 0, canvas.width, canvas.height);
-
-    const fontSize = Math.round(this.style.fontSize / 8) * 8 * 1.5;
-    const buffer = fontSize / 8;
-    const radius = fontSize / 3;
-    const sdfSize = fontSize + buffer * 2;
-
-    this.sdfSize = sdfSize;
-
-    // context.font = `${fontSize}px sans-serif`;
-
-    const now = performance.now();
-    const sdfData = getSDFData(text, fontSize);
-    console.log('SDF 数据生成时间：', (performance.now() - now) << 0, 'ms');
-
-    const characterSize = [];
-
-    for (let y = 0, i = 0; y + sdfSize <= canvas.height && i < text.length; y += sdfSize) {
-      for (let x = 0; x + sdfSize <= canvas.width && i < text.length; x += sdfSize) {
-        const sdfDataArray = sdfData[i];
-        characterSize.push([x, y, sdfSize, sdfSize, sdfDataArray[1], sdfDataArray[2]]);
-        context.putImageData(sdfDataArray[0], x, y);
-        // x += context.measureText(text[i]).width + buffer * 2;
-        i++;
-      }
+  set text(value) {
+    if (this._text !== value) {
+      this._text = value;
+      this.needUpdateCharacter = true;
     }
-
-    this.texture = new PIXI.Texture.fromCanvas(this.canvas);
-    this.characterSize = characterSize;
+  }
+  get text() {
+    return this._text;
   }
   /**
    * calculates worldTransform * vertices, store it in vertexData
@@ -99,10 +71,10 @@ class BetterText extends PIXI.Sprite {
     // if (this._transformID === this.transform._worldID && this._textureID === this._texture._updateID) {
     //   return;
     // }
-    this._transformID = this.transform._worldID;
-    this._textureID = this._texture._updateID;
+    // this._transformID = this.transform._worldID;
+    // this._textureID = this._texture._updateID;
     // set the vertex data
-    const texture = this._texture;
+    // const texture = this._texture;
     const wt = this.transform.worldTransform;
     const a = wt.a;
     const b = wt.b;
@@ -122,7 +94,7 @@ class BetterText extends PIXI.Sprite {
     // h1 = -anchor._y * orig.height;
     // h0 = h1 + orig.height;
 
-    const ratio = 1 / (1.5 * (Math.round(this.style.fontSize / 8) * 8 / this.style.fontSize));
+    const ratio = 1 / (64 / this.style.fontSize);
 
     w1 = (x - anchor._x * width) * ratio;
     w0 = w1 + width * ratio;
@@ -146,19 +118,19 @@ class BetterText extends PIXI.Sprite {
     return vertexData;
   }
   generateCharacterData() {
+    this.characterData = [];
+
+    const uvVertexData = getTextData(this.text);
 
     let x = 0;
     let y = 0;
 
-    for (let index = 0; index < this.text.length; index++) {
-      const [sdfX, sdfY, sdfWidth, sdfHeight, width, height] = this.characterSize[index];
+    for (const [uv0, uv1, uv2, uv3, width, height] of uvVertexData) {
       const ratio = width / height;
-
       const vertexData = this.calculateVertices(x, y, width, height);
 
-      x += width - Math.round(this.style.fontSize / 8) * 8 * 1.5 / 4;
+      x += width - 64 / 4;
       y += 0;
-
 
       const character = {
         worldAlpha: this.worldAlpha,
@@ -169,14 +141,14 @@ class BetterText extends PIXI.Sprite {
         strokeColor: this.uStrokeColor,
         fillColor: this.uFillColor,
         textureId: this._texture.baseTexture._virtalBoundId,
-        _texture: new PIXI.Texture(this._texture, new PIXI.Rectangle(sdfX, sdfY, sdfWidth * ratio, sdfHeight)),
+        _texture: this._texture,
         blendMode: this.blendMode,
-        // uvs: this._texture._uvs,
+        uvs: new Uint32Array([uv0, uv1, uv2, uv3]),
         vertexData
       };
+
       this.characterData.push(character);
     }
-
   }
   _renderWebGL(renderer) {
     const gl = renderer.gl;
@@ -201,6 +173,14 @@ class BetterText extends PIXI.Sprite {
 
 var text = new BetterText('test泽材灭逐莫笔亡鲜词圣择寻厂睡博');
 app.stage.addChild(text);
+
+window.text = text;
+
+
+var sprite = new PIXI.Sprite(new PIXI.Texture(getSDFTexture()));
+sprite.x = -0;
+sprite.y = 200;
+app.stage.addChild(sprite)
 
 // var image = new PIXI.Sprite.fromImage('img.png');
 // app.stage.addChild(image);

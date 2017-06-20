@@ -16,7 +16,10 @@
   "author": "Icemic <bingfeng.web@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "pixi-gl-core": "^1.1.0"
+    "bit-twiddle": "^1.0.2",
+    "lru-cache": "^4.1.1",
+    "pixi-gl-core": "^1.1.0",
+    "pixi.js": "4.5"
   },
   "peerDependencies": {
     "pixi.js": "^4.5.3"
