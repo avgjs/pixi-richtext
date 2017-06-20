@@ -1,7 +1,7 @@
 const PIXI = require('pixi.js');
 import './BetterTextRenderer';
 import TinySDF from './lib/SDF';
-import { getSDFTexture, getTextData } from './lib/SDFCache';
+import { getSDFTexture, getTextData, getSDFConfig } from './lib/SDFCache';
 
 PIXI.settings.RENDER_OPTIONS.antialias = true;
 var app = new PIXI.Application({
@@ -11,6 +11,8 @@ var app = new PIXI.Application({
 });
 
 app.renderer.backgroundColor = 0x888888;
+
+const sdfConfig = getSDFConfig();
 
 class BetterText extends PIXI.Sprite {
   constructor(text, style = {}) {
@@ -94,7 +96,7 @@ class BetterText extends PIXI.Sprite {
     // h1 = -anchor._y * orig.height;
     // h0 = h1 + orig.height;
 
-    const ratio = 1 / (64 / this.style.fontSize);
+    const ratio = 1 / (sdfConfig.size / this.style.fontSize);
 
     w1 = (x - anchor._x * width) * ratio;
     w0 = w1 + width * ratio;
@@ -129,7 +131,7 @@ class BetterText extends PIXI.Sprite {
       const ratio = width / height;
       const vertexData = this.calculateVertices(x, y, width, height);
 
-      x += width - 64 / 4;
+      x += width - sdfConfig.buffer * 2;
       y += 0;
 
       const character = {
