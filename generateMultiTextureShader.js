@@ -10,22 +10,36 @@ attribute vec2 aVertexPosition;
 attribute vec2 aTextureCoord;
 attribute vec4 aColor;
 attribute float aTextureId;
+attribute float aShadow;
 attribute float aStroke;
 attribute float aFill;
 attribute float aGamma;
-attribute vec3 aStrokeColor;
-attribute vec3 aFillColor;
+attribute float aShadowBlur;
+attribute vec4 aShadowColor;
+attribute vec4 aStrokeColor;
+attribute vec4 aFillColor;
+attribute vec2 aShadowOffset;
+attribute float aShadowEnable;
+attribute float aStrokeEnable;
+attribute float aFillEnable;
 
 uniform mat3 projectionMatrix;
 
 varying vec2 vTextureCoord;
 varying vec4 vColor;
 varying float vTextureId;
+varying float vShadow;
 varying float vStroke;
 varying float vFill;
 varying float vGamma;
-varying vec3 vStrokeColor;
-varying vec3 vFillColor;
+varying float vShadowBlur;
+varying vec4 vShadowColor;
+varying vec4 vStrokeColor;
+varying vec4 vFillColor;
+varying vec2 vShadowOffset;
+varying float vShadowEnable;
+varying float vStrokeEnable;
+varying float vFillEnable;
 
 void main(void){
     gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);
@@ -33,11 +47,18 @@ void main(void){
     vTextureCoord = aTextureCoord;
     vTextureId = aTextureId;
     vColor = vec4(aColor.rgb * aColor.a, aColor.a);
+    vShadow = aShadow;
     vStroke = aStroke;
     vFill = aFill;
     vGamma = aGamma;
+    vShadowColor = aShadowColor;
+    vShadowBlur = aShadowBlur;
     vStrokeColor = aStrokeColor;
     vFillColor = aFillColor;
+    vShadowOffset = aShadowOffset;
+    vShadowEnable = aShadowEnable;
+    vStrokeEnable = aStrokeEnable;
+    vFillEnable = aFillEnable;
 }
 `;
 
@@ -52,11 +73,18 @@ const fragTemplate = [
     // 'uniform vec3 uFillColor;',
     // 'uniform vec3 uStrokeColor;',
     `
+    varying float vShadow;
+    varying float vShadowBlur;
     varying float vStroke;
     varying float vFill;
     varying float vGamma;
-    varying vec3 vStrokeColor;
-    varying vec3 vFillColor;
+    varying vec4 vShadowColor;
+    varying vec4 vStrokeColor;
+    varying vec4 vFillColor;
+    varying vec2 vShadowOffset;
+    varying float vShadowEnable;
+    varying float vStrokeEnable;
+    varying float vFillEnable;
     `,
 
     'void main(void){',
@@ -64,10 +92,13 @@ const fragTemplate = [
     'float alphaStroke;',
     'float alphaFill;',
     'vec4 colorStroke;',
+    'float alphaShadow;',
+    'vec4 colorShadow;',
     'vec4 colorFill;',
     'float textureId = floor(vTextureId+0.5);',
     '%forloop%',
-    'gl_FragColor = mix(colorStroke, colorFill, alphaFill) * vColor;',
+    'vec4 color = mix(colorShadow * vShadowEnable, colorStroke, alphaStroke) * vColor;',
+    'gl_FragColor = mix(color, colorFill, alphaFill) * vColor;',
     '}',
 ].join('\n');
 
@@ -118,11 +149,13 @@ function generateSampleSrc(maxTextures)
 
         src += `\n{
           float dist = texture2D(uSamplers[${i}], vTextureCoord).r;
-          alphaStroke = smoothstep(vStroke - vGamma, vStroke + vGamma, dist);
+          float distOffset = texture2D(uSamplers[${i}], vTextureCoord.xy - vShadowOffset).r;
+          alphaShadow = smoothstep(vShadow - vGamma - vShadowBlur, vShadow + vGamma + vShadowBlur, distOffset);
+          alphaStroke = smoothstep(vStroke - vGamma, vStroke + vGamma, dist * vStrokeEnable);
           alphaFill = smoothstep(vFill - vGamma, vFill + vGamma, dist);
-          // gl_FragColor = vec4(alpha, vec2(0, 0), 0.5);
-          colorStroke = vec4(vStrokeColor, alphaStroke * 1.);
-          colorFill = vec4(vFillColor, alphaFill * 1.);
+          colorShadow = vec4(vShadowColor.rgb, alphaShadow) * vShadowColor.a;
+          colorStroke = vec4(vStrokeColor.rgb, alphaStroke) * vStrokeColor.a;
+          colorFill = vec4(vFillColor.rgb, alphaFill * vFillEnable) * vFillColor.a;
         }`;
 
         // src += '\n{';

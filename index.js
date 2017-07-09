@@ -32,11 +32,12 @@ class BetterText extends PIXI.Sprite {
 
     // this.style.fontSize = 24;
 
-
-
-    this.uStroke = 0.50;    //0.50
-    this.uFill = 0.76;      //0.73
-    this.uGamma = 2 * 1.4142 / (this.style.fontSize * 1.5);
+    // (1 - 0.76 - 0.07) * 0.77
+    this.uShadow = 0.50;
+    this.uStroke = 0;    //0.50
+    this.uFill = 0.75;      //0.73
+    this.uGamma = 2 * 1.4142 / (this.style.fontSize * 1.8);
+    this.uShadowColor = [0.0, 0.0, 0.0];
     this.uStrokeColor = [1.0, 1.0, 1.0];
     this.uFillColor = [.0, 0, 0];
 
@@ -79,8 +80,8 @@ class BetterText extends PIXI.Sprite {
     // const texture = this._texture;
     const wt = this.transform.worldTransform;
     const a = wt.a;
-    const b = wt.b;
-    const c = wt.c;
+    const b = wt.b = 0;
+    const c = wt.c = 0; //Math.sin(-0.207);
     const d = wt.d;
     const tx = wt.tx;
     const ty = wt.ty;
@@ -122,26 +123,45 @@ class BetterText extends PIXI.Sprite {
   generateCharacterData() {
     this.characterData = [];
 
+    const now = performance.now();
+
     const uvVertexData = getTextData(this.text);
+
+    console.log(`SDF 纹理生成/获得时间：${(performance.now() - now) << 0} ms`)
 
     let x = 0;
     let y = 0;
 
     for (const [uv0, uv1, uv2, uv3, width, height] of uvVertexData) {
       const ratio = width / height;
+      const ratio2 = sdfConfig.size / this.style.fontSize;
       const vertexData = this.calculateVertices(x, y, width, height);
 
       x += width - sdfConfig.buffer * 2;
       y += 0;
 
+      const shadowRGB = 0xff0000;
+      const strokeRGB = 0xffffff;
+      const fillRGB = 0x000000;
+      const shadowAlpha = 1;
+      const strokeAlpha = 1;
+      const fillAlpha = 1;
+
       const character = {
         worldAlpha: this.worldAlpha,
         tintRGB: this._tintRGB,
-        stroke: this.uStroke,
-        fill: this.uFill,
-        gamma: this.uGamma,
-        strokeColor: this.uStrokeColor,
-        fillColor: this.uFillColor,
+        shadowEnable: this.style.dropShadow,
+        strokeEnable: +(!!this.style.strokeThickness),
+        fillEnable: 1,
+        shadowOffset: [Math.cos(this.style.dropShadowAngle) * this.style.dropShadowDistance * ratio2 / sdfConfig.textureSize, Math.sin(this.style.dropShadowAngle) * this.style.dropShadowDistance * ratio2 / sdfConfig.textureSize],
+        shadow: Math.max(0, this.style.strokeThickness * -0.06 + 0.7),
+        shadowBlur: 0.15,
+        stroke: Math.max(0, this.style.strokeThickness * -0.06 + 0.7),
+        fill: this.uFill - (+(!this.style.strokeThickness)) * 0.02,
+        gamma: 2 * 1.4142 / (this.style.fontSize * 1.8),
+        shadowColor: (shadowRGB >> 16) + (shadowRGB & 0xff00) + ((shadowRGB & 0xff) << 16) + (Math.min(shadowAlpha, 1) * 255 << 24),
+        strokeColor: (strokeRGB >> 16) + (strokeRGB & 0xff00) + ((strokeRGB & 0xff) << 16) + (Math.min(strokeAlpha, 1) * 255 << 24),
+        fillColor: (fillRGB >> 16) + (fillRGB & 0xff00) + ((fillRGB & 0xff) << 16) + (Math.min(fillAlpha, 1) * 255 << 24),
         textureId: this._texture.baseTexture._virtalBoundId,
         _texture: this._texture,
         blendMode: this.blendMode,
@@ -179,7 +199,18 @@ var text2 = new PIXI.Text('test泽材灭逐莫笔亡鲜词圣择寻厂睡博');
 text2.y = 50;
 // text2.style.fontSize = 24;
 text2.style.stroke = 0xffffff;
-text2.style.strokeThickness = 3;
+// text2.style.fontStyle = 'italic bold';
+text.style.strokeThickness = 4;
+text2.style.strokeThickness = 4;
+text.style.dropShadow = true;
+text.style.dropShadowAngle = 0.707;
+text.style.dropShadowDistance = 4;
+text.style.dropShadowBlur = 2;
+text2.style.dropShadow = true;
+text2.style.dropShadowAngle = 0.707;
+text2.style.dropShadowDistance = 4;
+text2.style.dropShadowBlur = 2;
+text2.style.lineJoin = 'round';
 app.stage.addChild(text2);
 
 window.text = text;
@@ -208,4 +239,4 @@ let i = 0;
 //   text.text = textContent;
 //   text2.text = textContent;
 //   i += length;
-// }, 500);
+// }, 0);

@@ -34,11 +34,12 @@ export default class SpriteRenderer extends ObjectRenderer
         /**
          * Number of values sent in the vertex buffer.
          * aVertexPosition(2), aTextureCoord(1), aColor(1), aTextureId(1) = 5
-         * uStroke(1), uFill(1), uGamma(1), uStrokeColor(3), uFillColor(3) = 9
+         * uShadow(1), uStroke(1), uFill(1), uGamma(1), uShadowColor(1), uStrokeColor(1), uFillColor(1) = 7
+         * uShadowOffset(2), uShadowEnable(1), uStrokeEnable(1), uFillEnable(1), uShadowBlur = 6
          *
          * @member {number}
          */
-        this.vertSize = 14;
+        this.vertSize = 18;
 
         /**
          * The size of the vertex information in bytes.
@@ -151,11 +152,18 @@ export default class SpriteRenderer extends ObjectRenderer
                 vao.addAttribute(vertexBuffer, attrs.aTextureId, gl.FLOAT, false, this.vertByteSize, 4 * 4);
             }
 
-            vao.addAttribute(vertexBuffer, attrs.aStroke, gl.FLOAT, true, this.vertByteSize, 5 * 4)
-                .addAttribute(vertexBuffer, attrs.aFill, gl.FLOAT, true, this.vertByteSize, 6 * 4)
-                .addAttribute(vertexBuffer, attrs.aGamma, gl.FLOAT, true, this.vertByteSize, 7 * 4)
-                .addAttribute(vertexBuffer, attrs.aStrokeColor, gl.FLOAT, true, this.vertByteSize, 8 * 4)
-                .addAttribute(vertexBuffer, attrs.aFillColor, gl.FLOAT, true, this.vertByteSize, 11 * 4);
+            vao.addAttribute(vertexBuffer, attrs.aShadow, gl.FLOAT, true, this.vertByteSize, 5 * 4)
+                .addAttribute(vertexBuffer, attrs.aStroke, gl.FLOAT, true, this.vertByteSize, 6 * 4)
+                .addAttribute(vertexBuffer, attrs.aFill, gl.FLOAT, true, this.vertByteSize, 7 * 4)
+                .addAttribute(vertexBuffer, attrs.aGamma, gl.FLOAT, true, this.vertByteSize, 8 * 4)
+                .addAttribute(vertexBuffer, attrs.aShadowColor, gl.UNSIGNED_BYTE, true, this.vertByteSize, 9 * 4)
+                .addAttribute(vertexBuffer, attrs.aStrokeColor, gl.UNSIGNED_BYTE, true, this.vertByteSize, 10 * 4)
+                .addAttribute(vertexBuffer, attrs.aFillColor, gl.UNSIGNED_BYTE, true, this.vertByteSize, 11 * 4)
+                .addAttribute(vertexBuffer, attrs.aShadowOffset, gl.FLOAT, true, this.vertByteSize, 12 * 4)
+                .addAttribute(vertexBuffer, attrs.aShadowEnable, gl.FLOAT, true, this.vertByteSize, 14 * 4)
+                .addAttribute(vertexBuffer, attrs.aStrokeEnable, gl.FLOAT, true, this.vertByteSize, 15 * 4)
+                .addAttribute(vertexBuffer, attrs.aFillEnable, gl.FLOAT, true, this.vertByteSize, 16 * 4)
+                .addAttribute(vertexBuffer, attrs.aShadowBlur, gl.FLOAT, true, this.vertByteSize, 17 * 4);
 
             this.vaos[i] = vao;
         }
@@ -386,17 +394,27 @@ export default class SpriteRenderer extends ObjectRenderer
             uint32View[index + 3] = uint32View[index + 3 + interval * 1] = uint32View[index + 3 + interval * 2] = uint32View[index + 3 + interval * 3] = mesh.tintRGB + (Math.min(mesh.worldAlpha, 1) * 255 << 24);
 
             float32View[index + 4] = float32View[index + 4 + interval * 1] = float32View[index + 4 + interval * 2] = float32View[index + 4 + interval * 3] = nextTexture._virtalBoundId;
-            
+
             //
-            float32View[index + 5] = float32View[index + 5 + interval * 1] = float32View[index + 5 + interval * 2] = float32View[index + 5 + interval * 3] = mesh.stroke;
-            float32View[index + 6] = float32View[index + 6 + interval * 1] = float32View[index + 6 + interval * 2] = float32View[index + 6 + interval * 3] = mesh.fill;
-            float32View[index + 7] = float32View[index + 7 + interval * 1] = float32View[index + 7 + interval * 2] = float32View[index + 7 + interval * 3] = mesh.gamma;
-            float32View[index + 8] = float32View[index + 8 + interval * 1] = float32View[index + 8 + interval * 2] = float32View[index + 8 + interval * 3] = mesh.strokeColor[0];
-            float32View[index + 9] = float32View[index + 9 + interval * 1] = float32View[index + 9 + interval * 2] = float32View[index + 9 + interval * 3] = mesh.strokeColor[1];
-            float32View[index + 10] = float32View[index + 10 + interval * 1] = float32View[index + 10 + interval * 2] = float32View[index + 10 + interval * 3] = mesh.strokeColor[2];
-            float32View[index + 11] = float32View[index + 11 + interval * 1] = float32View[index + 11 + interval * 2] = float32View[index + 11 + interval * 3] = mesh.fillColor[0];
-            float32View[index + 12] = float32View[index + 12 + interval * 1] = float32View[index + 12 + interval * 2] = float32View[index + 12 + interval * 3] = mesh.fillColor[1];
-            float32View[index + 13] = float32View[index + 13 + interval * 1] = float32View[index + 13 + interval * 2] = float32View[index + 13 + interval * 3] = mesh.fillColor[2];
+            float32View[index + 5] = float32View[index + 5 + interval * 1] = float32View[index + 5 + interval * 2] = float32View[index + 5 + interval * 3] = mesh.shadow;
+            float32View[index + 6] = float32View[index + 6 + interval * 1] = float32View[index + 6 + interval * 2] = float32View[index + 6 + interval * 3] = mesh.stroke;
+            float32View[index + 7] = float32View[index + 7 + interval * 1] = float32View[index + 7 + interval * 2] = float32View[index + 7 + interval * 3] = mesh.fill;
+            float32View[index + 8] = float32View[index + 8 + interval * 1] = float32View[index + 8 + interval * 2] = float32View[index + 8 + interval * 3] = mesh.gamma;
+            uint32View[index + 9] = uint32View[index + 9 + interval * 1] = uint32View[index + 9 + interval * 2] = uint32View[index + 9 + interval * 3] = mesh.shadowColor;
+            uint32View[index + 10] = uint32View[index + 10 + interval * 1] = uint32View[index + 10 + interval * 2] = uint32View[index + 10 + interval * 3] = mesh.strokeColor;
+            uint32View[index + 11] = uint32View[index + 11 + interval * 1] = uint32View[index + 11 + interval * 2] = uint32View[index + 11 + interval * 3] = mesh.fillColor;
+            // float32View[index + 12] = float32View[index + 12 + interval * 1] = float32View[index + 12 + interval * 2] = float32View[index + 12 + interval * 3] = mesh.strokeColor[0];
+            // float32View[index + 13] = float32View[index + 13 + interval * 1] = float32View[index + 13 + interval * 2] = float32View[index + 13 + interval * 3] = mesh.strokeColor[1];
+            // float32View[index + 14] = float32View[index + 14 + interval * 1] = float32View[index + 14 + interval * 2] = float32View[index + 14 + interval * 3] = mesh.strokeColor[2];
+            // float32View[index + 15] = float32View[index + 15 + interval * 1] = float32View[index + 15 + interval * 2] = float32View[index + 15 + interval * 3] = mesh.fillColor[0];
+            // float32View[index + 16] = float32View[index + 16 + interval * 1] = float32View[index + 16 + interval * 2] = float32View[index + 16 + interval * 3] = mesh.fillColor[1];
+            // float32View[index + 17] = float32View[index + 17 + interval * 1] = float32View[index + 17 + interval * 2] = float32View[index + 17 + interval * 3] = mesh.fillColor[2];
+            float32View[index + 12] = float32View[index + 12 + interval * 1] = float32View[index + 12 + interval * 2] = float32View[index + 12 + interval * 3] = mesh.shadowOffset[0];
+            float32View[index + 13] = float32View[index + 13 + interval * 1] = float32View[index + 13 + interval * 2] = float32View[index + 13 + interval * 3] = mesh.shadowOffset[1];
+            float32View[index + 14] = float32View[index + 14 + interval * 1] = float32View[index + 14 + interval * 2] = float32View[index + 14 + interval * 3] = mesh.shadowEnable;
+            float32View[index + 15] = float32View[index + 15 + interval * 1] = float32View[index + 15 + interval * 2] = float32View[index + 15 + interval * 3] = mesh.strokeEnable;
+            float32View[index + 16] = float32View[index + 16 + interval * 1] = float32View[index + 16 + interval * 2] = float32View[index + 16 + interval * 3] = mesh.fillEnable;
+            float32View[index + 17] = float32View[index + 17 + interval * 1] = float32View[index + 17 + interval * 2] = float32View[index + 17 + interval * 3] = mesh.shadowBlur;
             /* eslint-enable max-len */
 
             // for (let i = 0; i < 16; i++) {
@@ -434,11 +452,18 @@ export default class SpriteRenderer extends ObjectRenderer
                     vao.addAttribute(vertexBuffer, attrs.aTextureId, gl.FLOAT, false, this.vertByteSize, 4 * 4);
                 }
 
-                vao.addAttribute(vertexBuffer, attrs.aStroke, gl.FLOAT, true, this.vertByteSize, 5 * 4)
-                    .addAttribute(vertexBuffer, attrs.aFill, gl.FLOAT, true, this.vertByteSize, 6 * 4)
-                    .addAttribute(vertexBuffer, attrs.aGamma, gl.FLOAT, true, this.vertByteSize, 7 * 4)
-                    .addAttribute(vertexBuffer, attrs.aStrokeColor, gl.FLOAT, true, this.vertByteSize, 8 * 4)
-                    .addAttribute(vertexBuffer, attrs.aFillColor, gl.FLOAT, true, this.vertByteSize, 11 * 4);
+                vao.addAttribute(vertexBuffer, attrs.aShadow, gl.FLOAT, true, this.vertByteSize, 5 * 4)
+                    .addAttribute(vertexBuffer, attrs.aStroke, gl.FLOAT, true, this.vertByteSize, 6 * 4)
+                    .addAttribute(vertexBuffer, attrs.aFill, gl.FLOAT, true, this.vertByteSize, 7 * 4)
+                    .addAttribute(vertexBuffer, attrs.aGamma, gl.FLOAT, true, this.vertByteSize, 8 * 4)
+                    .addAttribute(vertexBuffer, attrs.aShadowColor, gl.UNSIGNED_BYTE, true, this.vertByteSize, 9 * 4)
+                    .addAttribute(vertexBuffer, attrs.aStrokeColor, gl.UNSIGNED_BYTE, true, this.vertByteSize, 10 * 4)
+                    .addAttribute(vertexBuffer, attrs.aFillColor, gl.UNSIGNED_BYTE, true, this.vertByteSize, 11 * 4)
+                    .addAttribute(vertexBuffer, attrs.aShadowOffset, gl.FLOAT, true, this.vertByteSize, 12 * 4)
+                    .addAttribute(vertexBuffer, attrs.aShadowEnable, gl.FLOAT, true, this.vertByteSize, 14 * 4)
+                    .addAttribute(vertexBuffer, attrs.aStrokeEnable, gl.FLOAT, true, this.vertByteSize, 15 * 4)
+                    .addAttribute(vertexBuffer, attrs.aFillEnable, gl.FLOAT, true, this.vertByteSize, 16 * 4)
+                    .addAttribute(vertexBuffer, attrs.aShadowBlur, gl.FLOAT, true, this.vertByteSize, 17 * 4);
 
                 this.vaos[this.vertexCount] = vao;
             }

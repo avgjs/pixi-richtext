@@ -23,6 +23,7 @@ module.exports = {
   devServer: {
     contentBase: './example/',
     historyApiFallback: true,
+    disableHostCheck: true,
     hot: true,
     inline: true
   }
