@@ -210,8 +210,8 @@ export default class SpriteRenderer extends ObjectRenderer
         // this.sprites[this.currentIndex++] = sprite;
         // this.currentIndex--;
 
-        this.meshes.push(...sprite.characterData);
-        this.currentIndex += sprite.characterData.length;
+        this.meshes.push(...sprite.vertexList);
+        this.currentIndex += sprite.vertexList.length;
     }
 
     /**
@@ -274,7 +274,7 @@ export default class SpriteRenderer extends ObjectRenderer
             // they have all ready been calculated so we just need to push them into the buffer.
             const mesh = meshes[i];
 
-            nextTexture = mesh._texture.baseTexture;
+            nextTexture = mesh.baseTexture;
 
             if (blendMode !== mesh.blendMode)
             {
