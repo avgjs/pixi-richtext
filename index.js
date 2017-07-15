@@ -1,7 +1,7 @@
 const PIXI = require('pixi.js');
 import './BetterTextRenderer';
 // import TinySDF from './lib/SDF';
-import { parseRichText } from './lib/richtext';
+import { parseRichText } from './lib/utils';
 import TextStyle from './lib/TextStyle';
 // import { getSDFTexture, getTextData, getSDFConfig } from './lib/SDFCache';
 
