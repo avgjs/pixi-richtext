@@ -29,7 +29,7 @@
     "babel-core": "^6.24.1",
     "babel-loader": "^7.0.0",
     "babel-plugin-transform-object-rest-spread": "^6.23.0",
-    "babel-preset-latest": "^6.24.1",
+    "babel-preset-env": "^1.6.0",
     "chai": "^4.1.0",
     "mocha": "^3.4.2",
     "pegjs": "^0.10.0",
