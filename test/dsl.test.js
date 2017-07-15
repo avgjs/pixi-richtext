@@ -97,6 +97,20 @@ describe('DSL Parser', () => {
           ]
         }
       ]);
+    expect(parse('<b=0xff>test</b>')).to
+      .eql([
+        {
+          "tagName": "b",
+          "value": 255,
+          "nodeType": "tag",
+          "children": [
+            {
+              "nodeType": "text",
+              "content": "test"
+            }
+          ]
+        }
+      ]);
   });
   it('parse boolean value', () => {
     expect(parse('<b=true>test</b>')).to
