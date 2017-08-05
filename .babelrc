@@ -14,5 +14,10 @@
         "useBuiltIns": true
       }
     ]
-  ]
+  ],
+  "env": {
+    "production": {
+      "presets": ["babili"]
+    }
+  }
 }
