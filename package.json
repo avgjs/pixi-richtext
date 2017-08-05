@@ -12,6 +12,8 @@
     "pixi",
     "pixi.js",
     "webgl",
+    "richtext",
+    "rich-text",
     "sdf"
   ],
   "author": "Icemic <bingfeng.web@gmail.com>",
