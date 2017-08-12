@@ -23,19 +23,18 @@
     "color": "^2.0.0",
     "huozi": "^1.0.5",
     "lru-cache": "^4.1.1",
-    "pixi-gl-core": "^1.1.0"
+    "pixi-gl-core": "^1.1.0",
+    "pixi.js": "^4.5.3"
   },
   "devDependencies": {
     "babel-core": "^6.24.1",
     "babel-loader": "^7.0.0",
     "babel-plugin-transform-object-rest-spread": "^6.23.0",
-    "babel-preset-babili": "^0.1.4",
-    "babel-preset-env": "^1.6.0",
+    "babel-preset-latest": "^6.24.1",
     "chai": "^4.1.0",
     "mocha": "^3.4.2",
     "pegjs": "^0.10.0",
     "pegjs-loader": "^0.5.1",
-    "pixi.js": "^4.5.3",
     "webpack": "^2.4.1",
     "webpack-dev-server": "^2.4.3",
     "webpack-node-externals": "^1.6.0"
