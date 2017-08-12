@@ -1212,13 +1212,13 @@ debug@2.6.0:
   dependencies:
     ms "0.7.2"
 
-debug@2.6.7, debug@^2.2.0:
+debug@2.6.7:
   version "2.6.7"
   resolved "https://registry.yarnpkg.com/debug/-/debug-2.6.7.tgz#92bad1f6d05bbb6bba22cca88bcd0ec894c2861e"
   dependencies:
     ms "2.0.0"
 
-debug@2.6.8, debug@^2.1.1, debug@^2.6.8:
+debug@2.6.8, debug@^2.1.1, debug@^2.2.0, debug@^2.6.8:
   version "2.6.8"
   resolved "https://registry.yarnpkg.com/debug/-/debug-2.6.8.tgz#e731531ca2ede27d188222427da17821d68ff4fc"
   dependencies:
@@ -1762,9 +1762,9 @@ https-browserify@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/https-browserify/-/https-browserify-0.0.1.tgz#3f91365cabe60b77ed0ebba24b454e3e09d95a82"
 
-huozi@^1.0.5:
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/huozi/-/huozi-1.0.5.tgz#74cedd8b49310d3762675039dcf95a97f8094e85"
+huozi@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/huozi/-/huozi-1.0.6.tgz#9f2d3a680af7d59e774e364dcc5485a9373a107e"
 
 ieee754@^1.1.4:
   version "1.1.8"
