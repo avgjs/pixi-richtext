@@ -1,7 +1,11 @@
 {
   "sourceMaps": true,
   "presets": [
-    "latest"
+    ["env", {
+      "targets": {
+        "browsers": ["last 2 chrome versions"]
+      }
+    }]
   ],
   "plugins": [
     [
@@ -10,5 +14,10 @@
         "useBuiltIns": true
       }
     ]
-  ]
+  ],
+  "env": {
+    "production": {
+      "presets": ["babili"]
+    }
+  }
 }
