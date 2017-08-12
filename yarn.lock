@@ -2498,7 +2498,7 @@ pixi-gl-core@^1.0.3, pixi-gl-core@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/pixi-gl-core/-/pixi-gl-core-1.1.0.tgz#a52cb4dd3254f9c7857a0e9c2356b00e6ec0c761"
 
-pixi.js@4:
+pixi.js@^4.5.3:
   version "4.5.4"
   resolved "https://registry.yarnpkg.com/pixi.js/-/pixi.js-4.5.4.tgz#7d812054c2f5cbd3041713fa38b2579dc786c91c"
   dependencies:
@@ -3242,6 +3242,10 @@ webpack-dev-server@^2.4.3:
     supports-color "^3.1.1"
     webpack-dev-middleware "^1.10.2"
     yargs "^6.0.0"
+
+webpack-node-externals@^1.6.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/webpack-node-externals/-/webpack-node-externals-1.6.0.tgz#232c62ec6092b100635a3d29d83c1747128df9bd"
 
 webpack-sources@^0.2.3:
   version "0.2.3"

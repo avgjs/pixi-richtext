@@ -1,6 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var webpack = require('webpack');
+var nodeExternals = require('webpack-node-externals');
 
 module.exports = {
   entry: "./index.js",
@@ -9,9 +10,7 @@ module.exports = {
     filename: "index.js",
     libraryTarget: 'umd'
   },
-  externals: {
-    'pixi.js': 'PIXI'
-  },
+  externals: [nodeExternals()],
   devtool: 'source-map',
   resolve: {
     extensions: ['.js']
@@ -25,7 +24,7 @@ module.exports = {
   plugins: [
     new webpack.DefinePlugin({
       'process.env': {
-        NODE_ENV: 'production',
+        NODE_ENV: JSON.stringify("production"),
       },
     }),
     new webpack.BannerPlugin(fs.readFileSync('./LICENSE', 'utf8')),
