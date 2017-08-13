@@ -1762,9 +1762,9 @@ https-browserify@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/https-browserify/-/https-browserify-0.0.1.tgz#3f91365cabe60b77ed0ebba24b454e3e09d95a82"
 
-huozi@^1.0.6:
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/huozi/-/huozi-1.0.6.tgz#9f2d3a680af7d59e774e364dcc5485a9373a107e"
+huozi@^1.0.7:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/huozi/-/huozi-1.0.7.tgz#379eedf29c35d9feda8ec710e7c28ea4d0f6115b"
 
 ieee754@^1.1.4:
   version "1.1.8"
