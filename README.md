@@ -6,6 +6,7 @@ Rich-text for PixiJS!
 
 - Runtime signed distance field algorithm, with LRU cache for 1024 characters
 - Better rendering effect
+- No font file required, while supporting custom font via `@font-face`
 - Full support for CJK languages
 - Layout using [huozi](https://github.com/Icemic/huozi.js)
 - Rich-text support
@@ -91,12 +92,18 @@ text.y = 100;
 
 Just like what you see above, rich-text is expressed by UBB-like code. All the tags in `defaultStyle` are supported. Tags in text will overwrite the style temporarily until the they were closed.
 
+In addition, you can use `text.renderPosition` to make a typewriter effect. See more in `example/demo.js`.
+
 ## Todos
 
 - [ ] Support pre-generated SDF texture
 - [ ] Generating SDF texture in single channel, which will expend cache number to 4096
 - [ ] Support strike and underline
 - [ ] Custom SDF algorithm, eg. [msdf](https://github.com/Chlumsky/msdfgen)
+
+## Related Works
+
+- TinySDF (https://github.com/mapbox/tiny-sdf)
 
 ## Contribution
 
