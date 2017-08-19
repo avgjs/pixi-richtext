@@ -48,6 +48,7 @@ const defaultStyle = {
   strokeAlpha: 1,
   strokeThickness: 0,
 
+  fontFamily: 'sans-serif',
   fontSize: 18,
 
   italic: false,
