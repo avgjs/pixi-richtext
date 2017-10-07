@@ -1,6 +1,6 @@
 {
   "name": "pixi-richtext",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "A Rich Text solution for PixiJS using SDF.",
   "main": "dist/index.js",
   "scripts": {
