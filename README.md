@@ -29,6 +29,31 @@ const app = new PIXI.Application({
 });
 
 const chars = '泽材<fillColor=0xff6600>灭<bold>逐</bold></fillColor>莫笔<strokeEnable=true>亡</strokeEnable>鲜，<strokeEnable=true><strokeColor=black><fillColor=red><fontSize=64>如何</fontSize><fillColor=orange><italic>气</italic><fillColor=yellow><bold>死</bold><fillColor=green>你的<fillColor=0xff6600>设<fillColor=blue>计师<fillColor=magenta><fontSize=28>朋</fontSize>友</fillColor></fillColor></fillColor></fillColor></fillColor></fillColor></fillColor></strokeColor></strokeEnable>';
+// see more: https://github.com/Icemic/huozi.js
+const layoutOptions = {
+  // any valid CSS font-family value is supported
+  // includes the fonts imported using @font-face
+  fontFamily: 'sans-serif',
+  // grid width for layout, 1em = gridSize
+  gridSize: 26,
+  // max width presented by character count
+  // (max-width = (gridSize + xInterval) * column - xInterval)
+  column: 25,
+  // max line number
+  row: Infinity,
+  // interval between characters (CJK only)
+  xInterval: 0,
+  // interval between lines
+  yInterval: 12,
+  // (for western characters)
+  letterSpacing: 0,
+  // compress punctuation inline (CJK only)
+  inlineCompression: true,
+  forceGridAlignment: true,
+  // enable it if your text do not include CJK characters
+  westernCharacterFirst: false,
+  forceSpaceBetweenCJKAndWestern: false
+}
 
 const defaultStyle = {
   fillEnable: true,
@@ -57,33 +82,11 @@ const defaultStyle = {
   // unsupported now
   strike: false,
   underline: false,
+
+  layout: layoutOptions
 };
 
-// see more: https://github.com/Icemic/huozi.js
-const layoutOptions = {
-  // any valid CSS font-family value is supported
-  // includes the fonts imported using @font-face
-  fontFamily: 'sans-serif',
-  // grid width for layout, 1em = gridSize
-  gridSize: 26,
-  // max width presented by character count
-  // (max-width = (gridSize + xInterval) * column - xInterval)
-  column: 25,
-  // max line number
-  row: Infinity,
-  // interval between characters (CJK only)
-  xInterval: 0,
-  // interval between lines
-  yInterval: 12,
-  // (for western characters)
-  letterSpacing: 0,
-  // compress punctuation inline (CJK only)
-  inlineCompression: true,
-  forceGridAlignment: true,
-  // enable it if your text do not include CJK characters
-  westernCharacterFirst: false,
-  forceSpaceBetweenCJKAndWestern: false
-}
+
 
 const text = new RichText(chars, defaultStyle, layoutOptions);
 app.stage.addChild(text);
