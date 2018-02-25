@@ -61,7 +61,7 @@ const id = setInterval(() => {
   // text.y += 10;
   text.renderPosition += 1;
 
-  if (text.renderPosition >= text.text.length) {
+  if (text.renderPosition >= (text._vertexList.length || text.text.length)) {
     clearInterval(id);
   }
 }, 1000 / 50);
