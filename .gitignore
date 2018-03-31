@@ -29,3 +29,6 @@ build/Release
 node_modules
 
 dist/
+
+# rust compile file
+rust/target

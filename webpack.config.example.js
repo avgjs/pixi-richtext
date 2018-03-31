@@ -15,7 +15,19 @@ module.exports = {
   module: {
     rules: [
       { test: /\.js$/, exclude: /node_modules\/(?!(huozi))/, loader: "babel-loader" },
-      { test: /\.pegjs$/, exclude: /node_modules/, loader: 'pegjs-loader' }
+      { test: /\.pegjs$/, exclude: /node_modules/, loader: 'pegjs-loader' },
+      {
+        test: /\.rs$/,
+        use: [{
+          loader: 'wasm-loader'
+        }, {
+          loader: 'rust-native-wasm-loader',
+          options: {
+            release: true,
+            wasmBindgen: false
+          }
+        }]
+      }
     ]
   },
   plugins: [
