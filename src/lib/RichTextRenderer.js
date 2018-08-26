@@ -1,6 +1,7 @@
 // import ObjectRenderer from 'pixi.js/lib/core/renderers/webgl/utils/ObjectRenderer';
 // import WebGLRenderer from 'pixi.js/lib/core/renderers/webgl/WebGLRenderer';
-const PIXI = require('pixi.js');
+// const PIXI = require('pixi.js');
+import PIXI from 'pixi.js';
 const ObjectRenderer = PIXI.ObjectRenderer;
 const WebGLRenderer = PIXI.WebGLRenderer;
 import createIndicesForQuads from 'pixi.js/lib/core/utils/createIndicesForQuads';

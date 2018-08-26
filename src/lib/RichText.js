@@ -1,4 +1,5 @@
-const PIXI = require('pixi.js');
+// const PIXI = require('pixi.js');
+import PIXI from 'pixi.js';
 import { parseRichText } from './utils';
 import TextStyle from './TextStyle';
 import { getSDFConfig } from './SDFCache';

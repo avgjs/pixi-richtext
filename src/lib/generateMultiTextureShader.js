@@ -1,5 +1,6 @@
 // import Shader from '../../Shader';
-const PIXI = require('pixi.js');
+// const PIXI = require('pixi.js');
+import PIXI from 'pixi.js';
 const Shader = PIXI.Shader;
 // import { readFileSync } from 'fs';
 // import { join } from 'path';

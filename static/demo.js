@@ -1,6 +1,4 @@
-const PIXI = require('pixi.js');
-
-import RichText from '../index';
+const RichText = PIXI.RichText;
 
 PIXI.settings.RENDER_OPTIONS.antialias = true;
 var app = new PIXI.Application({
