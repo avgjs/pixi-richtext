@@ -2,8 +2,8 @@
   "name": "pixi-richtext",
   "version": "1.0.17",
   "description": "A Rich Text solution for PixiJS using SDF.",
-  "main": "dist/pixi.richtext.umd.js",
-  "broswer": "dist/pixi.richtext.umd.js",
+  "main": "dist/pixi.richtext.es5.js",
+  "browser": "dist/pixi.richtext.umd.js",
   "module": "dist/pixi.richtext.es5.js",
   "scripts": {
     "build": "BABEL_ENV=production rollup -c rollup.config.js",

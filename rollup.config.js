@@ -14,6 +14,9 @@ const BANNER = `
 <%= pkg.name %> - v<%= pkg.version %>
 Compiled <%= moment().format() %>
 
+@author <%= pkg.author %>
+
+@license <%= pkg.license %>
 <%= pkg.name %> is licensed under the MIT License.
 http://www.opensource.org/licenses/mit-license
 `;
@@ -21,10 +24,9 @@ http://www.opensource.org/licenses/mit-license
 export default {
   input: `src/index.js`,
   output: [
-    { file: pkg.main, name: 'PIXI.RichText', format: 'umd' },
-    { file: pkg.module, format: 'es' },
+    { file: pkg.browser, name: 'PIXI.RichText', format: 'umd', sourcemap: true },
+    { file: pkg.module, format: 'es', sourcemap: true },
   ],
-  sourcemap: true,
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
   external: ['pixi.js', 'pixi-gl-core'],
   globals: {
@@ -52,8 +54,7 @@ export default {
     // which external modules to include in the bundle
     // https://github.com/rollup/rollup-plugin-node-resolve#usage
     resolve({
-      browser: true,
-      preferBuiltins: false
+      // browser: true
     }),
 
     license({

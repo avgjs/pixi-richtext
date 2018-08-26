@@ -1,18 +1,19 @@
 // import ObjectRenderer from 'pixi.js/lib/core/renderers/webgl/utils/ObjectRenderer';
 // import WebGLRenderer from 'pixi.js/lib/core/renderers/webgl/WebGLRenderer';
 // const PIXI = require('pixi.js');
-import PIXI from 'pixi.js';
+// import * as PIXI from 'pixi.js';
 const ObjectRenderer = PIXI.ObjectRenderer;
 const WebGLRenderer = PIXI.WebGLRenderer;
-import createIndicesForQuads from 'pixi.js/lib/core/utils/createIndicesForQuads';
 import generateMultiTextureShader from './generateMultiTextureShader';
-import checkMaxIfStatmentsInShader from 'pixi.js/lib/core/renderers/webgl/utils/checkMaxIfStatmentsInShader';
-import Buffer from 'pixi.js/lib/core/sprites/webgl/BatchBuffer';
-import settings from 'pixi.js/lib/core/settings';
+import createIndicesForQuads from './pixi-source/createIndicesForQuads';
+import checkMaxIfStatmentsInShader from './pixi-source/checkMaxIfStatmentsInShader';
+import BatchBuffer from './pixi-source/BatchBuffer';
+// import settings from 'pixi.js/lib/core/settings';
 // import glCore from 'pixi-gl-core';
 import bitTwiddle from 'bit-twiddle';
 
 const glCore = PIXI.glCore;
+const settings = PIXI.settings;
 
 let TICK = 0;
 let TEXTURE_TICK = 0;
@@ -64,7 +65,7 @@ export default class RichTextRenderer extends ObjectRenderer
         this.buffers = [];
         for (let i = 1; i <= bitTwiddle.nextPow2(this.size); i *= 2)
         {
-            this.buffers.push(new Buffer(i * 4 * this.vertByteSize));
+            this.buffers.push(new BatchBuffer(i * 4 * this.vertByteSize));
         }
 
         /**
