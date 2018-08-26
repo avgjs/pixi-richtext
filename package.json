@@ -8,6 +8,7 @@
   "scripts": {
     "build": "BABEL_ENV=production rollup -c rollup.config.js",
     "start": "http-server -p 3001 & rollup -c rollup.config.js -w",
+    "prepack": "npm run build",
     "dev": "webpack-dev-server --config webpack.config.example.js --hot --host 0.0.0.0 --port 8001 --devtool source-map",
     "test": "mocha"
   },
