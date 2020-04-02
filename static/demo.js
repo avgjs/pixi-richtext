@@ -1,4 +1,4 @@
-const RichText = PIXI.RichText;
+const RichText = PIXI.Text;
 
 PIXI.settings.RENDER_OPTIONS.antialias = true;
 var app = new PIXI.Application({
