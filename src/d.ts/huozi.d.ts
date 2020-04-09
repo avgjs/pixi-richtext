@@ -1,0 +1,1 @@
+declare function huozi(data: Array<any>, opts: any): Array<string>;

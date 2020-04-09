@@ -1,11 +1,4 @@
-// import Shader from '../../Shader';
-// const PIXI = require('pixi.js');
-// import * as PIXI from 'pixi.js';
-const Shader = PIXI.Shader;
-// import { readFileSync } from 'fs';
-// import { join } from 'path';
-
-const vertexSrc = `
+export const vertexSrc = `
 precision highp float;
 attribute vec2 aVertexPosition;
 attribute vec2 aTextureCoord;
@@ -25,6 +18,8 @@ attribute float aStrokeEnable;
 attribute float aFillEnable;
 
 uniform mat3 projectionMatrix;
+uniform mat3 translationMatrix;
+uniform vec4 tint;
 
 varying vec2 vTextureCoord;
 varying vec4 vColor;
@@ -42,8 +37,8 @@ varying float vShadowEnable;
 varying float vStrokeEnable;
 varying float vFillEnable;
 
-void main(void){
-    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);
+void main(){
+    gl_Position = vec4((projectionMatrix * translationMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);
 
     vTextureCoord = aTextureCoord;
     vTextureId = aTextureId;
@@ -63,7 +58,7 @@ void main(void){
 }
 `;
 
-const fragTemplate = [
+export const fragTemplate = [
     'varying vec2 vTextureCoord;',
     'varying vec4 vColor;',
     'varying float vTextureId;',
@@ -85,6 +80,8 @@ const fragTemplate = [
     'varying float vShadowEnable;',
     'varying float vStrokeEnable;',
     'varying float vFillEnable;',
+    
+    'const float smoothing = 0.25; //1.0 / 16.0;',
 
     'void main(void){',
     // 'vec4 color;',
@@ -101,66 +98,49 @@ const fragTemplate = [
     '}',
 ].join('\n');
 
-export default function generateMultiTextureShader(gl, maxTextures)
-{
-    // const vertexSrc = readFileSync(join(__dirname, './texture.vert'), 'utf8');
-    let fragmentSrc = fragTemplate;
+export class RichTextBatchShaderGenerator extends PIXI.BatchShaderGenerator {    
+    generateSampleSrc (maxTextures: number)
+	{
+	    let src = '';
 
-    fragmentSrc = fragmentSrc.replace(/%count%/gi, maxTextures);
-    fragmentSrc = fragmentSrc.replace(/%forloop%/gi, generateSampleSrc(maxTextures));
+        src += '\n';
+        src += '\n';
 
-    const shader = new Shader(gl, vertexSrc, fragmentSrc);
+        for (let i = 0; i < maxTextures; i++)
+        {
+            if (i > 0)
+            {
+                src += '\nelse ';
+            }
 
-    const sampleValues = [];
+            if (i < maxTextures - 1)
+            {
+                src += `if(textureId == ${i}.0)`;
+            }
 
-    for (let i = 0; i < maxTextures; i++)
-    {
-        sampleValues[i] = i;
-    }
+            src += `\n{
+            float dist = texture2D(uSamplers[${i}], vTextureCoord).r;
+            float distOffset = texture2D(uSamplers[${i}], vTextureCoord.xy - vShadowOffset).r;
+            alphaShadow = smoothstep(vShadow - vGamma - vShadowBlur, vShadow + vGamma + vShadowBlur, distOffset);
+            alphaStroke = smoothstep(vStroke - vGamma, vStroke + vGamma, dist * vStrokeEnable);
+            alphaFill = smoothstep(vFill - vGamma, vFill + vGamma, dist);
+            colorShadow = vec4(vShadowColor.rgb, alphaShadow) * vShadowColor.a;
+            colorStroke = vec4(vStrokeColor.rgb, alphaStroke) * vStrokeColor.a;
+            colorFill = vec4(vFillColor.rgb, alphaFill * vFillEnable) * vFillColor.a;
+            }`;
 
-    shader.bind();
-    shader.uniforms.uSamplers = sampleValues;
+            // src += '\n{';
+            // src += `\n\tcolor = texture2D(uSamplers[${i}], vTextureCoord);`;
+            // src += '\n}';
+        }
 
-    return shader;
+        src += '\n';
+        src += '\n';
+
+        return src;
+	}
 }
 
-function generateSampleSrc(maxTextures)
-{
-    let src = '';
-
-    src += '\n';
-    src += '\n';
-
-    for (let i = 0; i < maxTextures; i++)
-    {
-        if (i > 0)
-        {
-            src += '\nelse ';
-        }
-
-        if (i < maxTextures - 1)
-        {
-            src += `if(textureId == ${i}.0)`;
-        }
-
-        src += `\n{
-          float dist = texture2D(uSamplers[${i}], vTextureCoord).r;
-          float distOffset = texture2D(uSamplers[${i}], vTextureCoord.xy - vShadowOffset).r;
-          alphaShadow = smoothstep(vShadow - vGamma - vShadowBlur, vShadow + vGamma + vShadowBlur, distOffset);
-          alphaStroke = smoothstep(vStroke - vGamma, vStroke + vGamma, dist * vStrokeEnable);
-          alphaFill = smoothstep(vFill - vGamma, vFill + vGamma, dist);
-          colorShadow = vec4(vShadowColor.rgb, alphaShadow) * vShadowColor.a;
-          colorStroke = vec4(vStrokeColor.rgb, alphaStroke) * vStrokeColor.a;
-          colorFill = vec4(vFillColor.rgb, alphaFill * vFillEnable) * vFillColor.a;
-        }`;
-
-        // src += '\n{';
-        // src += `\n\tcolor = texture2D(uSamplers[${i}], vTextureCoord);`;
-        // src += '\n}';
-    }
-
-    src += '\n';
-    src += '\n';
-
-    return src;
+export function getBatchShaderGenerator(): RichTextBatchShaderGenerator {
+    return new RichTextBatchShaderGenerator(vertexSrc, fragTemplate);
 }
