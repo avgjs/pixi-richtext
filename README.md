@@ -2,6 +2,8 @@
 
 Rich-text for PixiJS!
 
+[Online Demo](./static/index.html)
+
 ## Feature
 
 - Runtime signed distance field algorithm, with LRU cache for 1024 characters
@@ -10,7 +12,6 @@ Rich-text for PixiJS!
 - Full support for CJK languages
 - Layout using [huozi](https://github.com/Icemic/huozi.js)
 - Rich-text support
-
 
 ## Usage
 

@@ -1,16 +1,7 @@
-const ObjectRenderer = PIXI.ObjectRenderer;
 const Renderer = PIXI.Renderer;
-import { getBatchShaderGenerator, vertexSrc, fragTemplate } from './generateMultiTextureShader';
-import bitTwiddle from 'bit-twiddle';
-import RichText from './RichText';
-
-const checkMaxIfStatementsInShader: (maxIfs: number, gl: WebGLRenderingContext) => number 
-        = (PIXI as any).checkMaxIfStatementsInShader;
-const createIndicesForQuads = PIXI.utils.createIndicesForQuads;
+import { getBatchShaderGenerator } from './generateMultiTextureShader';
+import RichText, { VetextInfo } from './RichText';
 const settings = PIXI.settings;
-
-var defaultVertex$2 = "precision highp float;\nattribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\nattribute vec4 aColor;\nattribute float aTextureId;\n\nuniform mat3 projectionMatrix;\nuniform mat3 translationMatrix;\nuniform vec4 tint;\n\nvarying vec2 vTextureCoord;\nvarying vec4 vColor;\nvarying float vTextureId;\n\nvoid main(void){\n    gl_Position = vec4((projectionMatrix * translationMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n\n    vTextureCoord = aTextureCoord;\n    vTextureId = aTextureId;\n    vColor = aColor * tint;\n}\n";
-var defaultFragment$2 = "varying vec2 vTextureCoord;\nvarying vec4 vColor;\nvarying float vTextureId;\nuniform sampler2D uSamplers[%count%];\n\nvoid main(void){\n    vec4 color;\n    %forloop%\n    gl_FragColor = color * vColor;\n}\n";
     
 class  BatchRichTextGeometry extends PIXI.BatchGeometry {
     vertByteSize = 19 * 4;
@@ -63,22 +54,23 @@ export default class RichTextRenderer extends PIXI.AbstractBatchRenderer
     _indexCount: number;
     _bufferSize: number;
     _bufferedTextures: PIXI.BaseTexture[];
-    _bufferedElements: RichText[];
+    _bufferedElements: VetextInfo[];
     _attributeBuffer: PIXI.ViewableBuffer;
     _indexBuffer: Uint16Array;
     _dcIndex: number;
     _aIndex: number;
     _iIndex: number;
+    _target: RichText;
+    _tempBoundTextures: any[];
+    _batchCount: number = 0;
 
     constructor(renderer: PIXI.Renderer) {
         super(renderer);
 
         this.shaderGenerator = getBatchShaderGenerator();
         this.geometryClass = BatchRichTextGeometry;
-        this.vertexSize = 6 + 12;
-        // this.shaderGenerator = new PIXI.BatchShaderGenerator(defaultVertex$2, defaultFragment$2);
-        // this.geometryClass = PIXI.BatchGeometry;
-        // this.vertexSize = 6;
+        this.vertexSize = 6 + 13;
+        this.size = Math.round(settings.SPRITE_BATCH_SIZE / 5);
     }
 
     render (element: RichText){
@@ -86,24 +78,35 @@ export default class RichTextRenderer extends PIXI.AbstractBatchRenderer
         {
             return;
         }
+        this._target = element;      
 
-        let vcount = element.vertexList.length * 8 / 2;
-        //if (this._vertexCount + vcount > this.size)
-        {
+        let count = Math.ceil(this._target.vertexList.length / this.size);
+        for(let i=0;i<count;i++) {
+            let start = 0, end = 0;
+            if (this._target.vertexList.length < this.size) {
+                end = this._target.vertexList.length;  
+            } else {
+                start = i * this.size;
+                end = Math.min((i + 1) * this.size, this._target.vertexList.length);
+            }
+            this._indexCount += (end - start) * 6;
+            this._vertexCount += (end - start) * 4;
+
+            for(let i = start; i < end; i++) {
+                let v = this._target.vertexList[i];
+                this._bufferedTextures[this._bufferSize] = v.baseTexture;
+                this._bufferedElements[this._bufferSize] = v;
+                this._bufferSize++;
+            }
+
             this.flush();
         }
-
-        let vindicesCount = element.vertexList.length * 6;
-        this._vertexCount += vcount;
-        this._indexCount += vindicesCount;
-        this._bufferedTextures[this._bufferSize] = element._texture.baseTexture;
-        this._bufferedElements[this._bufferSize++] = element;
     }
 
     buildDrawCalls (texArray: PIXI.BatchTextureArray, start: number, finish: number)
-    {
+    {        
         var ref = this;
-        var elements = ref._bufferedElements;
+        var charsInfo = ref._bufferedElements;
         var _attributeBuffer = ref._attributeBuffer;
         var _indexBuffer = ref._indexBuffer;
         var vertexSize = ref.vertexSize;
@@ -114,27 +117,17 @@ export default class RichTextRenderer extends PIXI.AbstractBatchRenderer
         var iIndex = this._iIndex;
 
         var drawCall: any = drawCalls[dcIndex];
-
-        texArray.elements = [];
-        texArray.ids = [];
-        for(let elm of elements) {
-            for(let v of elm.vertexList) {
-                texArray.elements.push(v.baseTexture);
-                texArray.ids.push(v.baseTexture._batchLocation);
-            }
-        }
-
         drawCall.start = this._iIndex;
         drawCall.texArray = texArray;
 
         for (var i = start; i < finish; ++i)
         {
-            var sprite: any = elements[i];
-            var tex = sprite._texture.baseTexture;
+            var cInfo = charsInfo[i];
+            var tex = cInfo.baseTexture;
             var spriteBlendMode = PIXI.utils.premultiplyBlendMode[
-                tex.alphaMode ? 1 : 0][sprite.blendMode];
+                tex.alphaMode ? 1 : 0][this._target.blendMode];
 
-            elements[i] = null;
+            charsInfo[i] = null;
 
             if (start < i && drawCall.blend !== spriteBlendMode)
             {
@@ -145,9 +138,9 @@ export default class RichTextRenderer extends PIXI.AbstractBatchRenderer
                 drawCall.start = iIndex;
             }
 
-            this.packInterleavedGeometry(sprite, _attributeBuffer, _indexBuffer, aIndex, iIndex);
-            aIndex += sprite.vertexList.length * 8 / 2 * vertexSize;
-            iIndex += sprite.vertexList.length * 6;
+            this._packInterleavedGeometry(cInfo, _attributeBuffer, _indexBuffer, aIndex, iIndex);
+            aIndex += 8 / 2 * vertexSize;
+            iIndex += 6;
 
             drawCall.blend = spriteBlendMode;
         }
@@ -163,64 +156,50 @@ export default class RichTextRenderer extends PIXI.AbstractBatchRenderer
         this._iIndex = iIndex;
     }
 
-    packInterleavedGeometry (element: RichText, attributeBuffer:PIXI.ViewableBuffer, indexBuffer:Uint16Array, aIndex:number, iIndex:number)
+    _packInterleavedGeometry (cInfo: VetextInfo, attributeBuffer:PIXI.ViewableBuffer, indexBuffer:Uint16Array, aIndex:number, iIndex:number)
     {
         var uint32View = attributeBuffer.uint32View;
         var float32View = attributeBuffer.float32View;
 
         var packedVertices = aIndex / this.vertexSize;
 
-        for(let v of element.vertexList) {     
-            let alpha = Math.min(v.worldAlpha, 1.0);
-            var argb = (alpha < 1.0
-                && element._texture.baseTexture.alphaMode)
-                ? PIXI.utils.premultiplyTint(v.tintRGB, alpha)
-                : v.tintRGB + (alpha * 255 << 24);
+        let alpha = Math.min(cInfo.worldAlpha, 1.0);
+        var argb = (alpha < 1.0
+            && cInfo.baseTexture.alphaMode)
+            ? PIXI.utils.premultiplyTint(cInfo.tintRGB, alpha)
+            : cInfo.tintRGB + (alpha * 255 << 24);
+        
+        let cnt = cInfo.vertexData.length/2;
+        for(let i=0; i<cnt;i++) {
+            float32View[aIndex++] = cInfo.vertexData[i*2];
+            float32View[aIndex++] = cInfo.vertexData[i*2 + 1];
+            float32View[aIndex++] = (cInfo.uvs[i] & 0xFFFF) / 65535;
+            float32View[aIndex++] = ((cInfo.uvs[i] >> 16) & 0xFFFF) / 65535;
+            uint32View[aIndex++] = argb;
+            float32View[aIndex++] = cInfo.baseTexture._batchLocation;   
             
-            let cnt = v.vertexData.length/2;
-            for(let i=0; i<cnt;i++) {
-                float32View[aIndex++] = v.vertexData[i*2];
-                float32View[aIndex++] = v.vertexData[i*2 + 1];
-                float32View[aIndex++] = (v.uvs[i] & 0xFFFF) / 65535;
-                float32View[aIndex++] = ((v.uvs[i] >> 16) & 0xFFFF) / 65535;
-                uint32View[aIndex++] = argb;
-                float32View[aIndex++] = v.baseTexture._batchLocation;   
-                
-                float32View[aIndex++] = v.shadow;
-                float32View[aIndex++] = v.stroke;
-                float32View[aIndex++] = v.fill;
-                float32View[aIndex++] = v.gamma;
-                float32View[aIndex++] = v.shadowBlur;
-                uint32View[aIndex++] = v.shadowColor;
-                uint32View[aIndex++] = v.strokeColor;
-                uint32View[aIndex++] = v.fillColor;                
-                float32View[aIndex++] = v.shadowOffset[0];                
-                float32View[aIndex++] = v.shadowOffset[1];                                
-                float32View[aIndex++] = v.shadowEnable;
-                float32View[aIndex++] = v.strokeEnable;
-                float32View[aIndex++] = v.fillEnable;
-            }
+            float32View[aIndex++] = cInfo.shadow;
+            float32View[aIndex++] = cInfo.stroke;
+            float32View[aIndex++] = cInfo.fill;
+            float32View[aIndex++] = cInfo.gamma;
+            float32View[aIndex++] = cInfo.shadowBlur;
+            uint32View[aIndex++] = cInfo.shadowColor;
+            uint32View[aIndex++] = cInfo.strokeColor;
+            uint32View[aIndex++] = cInfo.fillColor;                
+            float32View[aIndex++] = cInfo.shadowOffset[0];                
+            float32View[aIndex++] = cInfo.shadowOffset[1];                                
+            float32View[aIndex++] = cInfo.shadowEnable;
+            float32View[aIndex++] = cInfo.strokeEnable;
+            float32View[aIndex++] = cInfo.fillEnable;
         }
 
-        for (var i$1 = 0; i$1 < element.vertexList.length; i$1++)
-        {
-            let offset = i$1 * 4; 
-            indexBuffer[iIndex++] = 0 + offset + packedVertices;
-            indexBuffer[iIndex++] = 1 + offset + packedVertices;                
-            indexBuffer[iIndex++] = 2 + offset + packedVertices;
-            indexBuffer[iIndex++] = 0 + offset + packedVertices;
-            indexBuffer[iIndex++] = 2 + offset + packedVertices;                
-            indexBuffer[iIndex++] = 3 + offset + packedVertices;   
-        }
+        indexBuffer[iIndex++] = 0 + packedVertices;
+        indexBuffer[iIndex++] = 1 + packedVertices;                
+        indexBuffer[iIndex++] = 2 + packedVertices;
+        indexBuffer[iIndex++] = 0 + packedVertices;
+        indexBuffer[iIndex++] = 2 + packedVertices;                
+        indexBuffer[iIndex++] = 3 + packedVertices; 
     }
 }
 
 Renderer.registerPlugin('richtext', RichTextRenderer as any);
-
-// let batchRenderer = PIXI.BatchPluginFactory.create({
-//     vertex: PIXI.BatchPluginFactory.defaultVertexSrc,
-//     fragment: PIXI.BatchPluginFactory.defaultFragmentTemplate,
-//     vertexSize: 6,
-//     geometryClass: PIXI.BatchGeometry, 
-// });
-// Renderer.registerPlugin('richtext', batchRenderer);

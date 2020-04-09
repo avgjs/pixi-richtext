@@ -200,7 +200,7 @@ export default class RichText extends PIXI.Sprite {
   }
 
   calculateVertices() {
-    this.vertexData = this._calculateVertices(0, 0, this.width, this.height);
+    
   }
 
   _calculateVertices(x: number, y: number, width: number, height: number, italic: boolean = false) {
