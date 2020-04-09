@@ -70,7 +70,7 @@ export default class RichTextRenderer extends PIXI.AbstractBatchRenderer
         this.shaderGenerator = getBatchShaderGenerator();
         this.geometryClass = BatchRichTextGeometry;
         this.vertexSize = 6 + 13;
-        this.size = Math.round(settings.SPRITE_BATCH_SIZE / 5);
+        this.size = Math.round(settings.SPRITE_BATCH_SIZE / 2);
     }
 
     render (element: RichText){
