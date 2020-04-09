@@ -2,7 +2,7 @@
 
 Rich-text for PixiJS!
 
-[Online Demo](./static/index.html)
+[Online Demo](https://wingcd.github.io/pixi-richtext/static/index.html)
 
 ## Feature
 
